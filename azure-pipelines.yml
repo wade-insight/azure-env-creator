@@ -1,0 +1,51 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+
+trigger: none
+
+variables:
+- template: config.yaml
+- name: location 
+  value: '${{ variables.location }}'
+- name: client
+  value: '${{ variables.client }}'
+- name: env
+  value: '${{ variables.env }}'  
+- name: subscriptionId
+  value: ${{ variables.subscription_id }}
+- name: subscriptionName
+  value: ${{ variables.subscription_name }}  
+- name: deployOnlyDev
+
+  value: True
+
+stages:
+  - stage: Dev
+    jobs:
+      - job: Deploy
+          
+        pool:
+          vmImage: ubuntu-latest
+
+        steps:
+
+        - task: Bash@3
+          inputs:
+            targetType: 'inline'
+            script: |
+              # Write your commands here      
+              ls
+
+        - task: AzurePowerShell@5
+          displayName: 'Deploy'
+          inputs:
+            azureSubscription: '$(subscriptionName)'
+            ScriptType: 'FilePath'
+            ScriptPath: 'deploy.ps1'
+            ScriptArguments: '-env $(env) -client $(client) -subscriptionId $(subscriptionId) -location $(location)'
+            azurePowerShellVersion: 'LatestVersion'
+            pwsh: true
+

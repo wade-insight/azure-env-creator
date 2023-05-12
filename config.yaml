@@ -1,0 +1,6 @@
+variables:
+    client: 'www'
+    location: 'westeurope'
+    env: 'dev'
+    subscription_id: 'a4e31a79-1b22-4591-b289-2dd5e2769c08'
+    subscription_name: 'wade-www-analytics-dev'

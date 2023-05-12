@@ -1,0 +1,58 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "client": {
+            "type": "String"
+        },
+        "environment": {
+            "type": "String"
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]"
+        },        
+		"servicePrincipalObjectId": {
+            "defaultValue": null,
+            "type": "String"
+        }
+    },
+    "variables": {
+        "keyVaultName": "[concat('wade', '-', parameters('client'), '-', 'kv' , '-', parameters('environment'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2021-06-01-preview",
+            "name": "[variables('keyVaultName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "family": "A",
+                    "name": "standard"
+                },
+                "tenantId": "[subscription().tenantId]",
+                "accessPolicies": [
+                    {
+						"tenantId": "[subscription().tenantId]",
+						"objectId": "[parameters('servicePrincipalObjectId')]",
+                        "permissions": {
+                            "secrets": [
+                                "Get",
+                                "List"
+                            ]
+                        }
+                    }
+                ],
+                "enabledForDeployment": false,
+                "enabledForDiskEncryption": false,
+                "enabledForTemplateDeployment": false,
+                "enableSoftDelete": true,
+                "softDeleteRetentionInDays": 90,
+                "enableRbacAuthorization": true,
+                "vaultUri": "[concat('https://', variables('keyVaultName'), '.vault.azure.net/')]",
+                "provisioningState": "Succeeded"
+            }
+        }
+    ]
+}

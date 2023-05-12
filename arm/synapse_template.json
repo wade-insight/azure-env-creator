@@ -1,0 +1,119 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"client": {
+			"type": "String"
+		},
+		"environment": {
+			"type": "String"
+		},
+		"location": {
+			"type": "String"
+		},
+		"adminObjectId": {
+			"type": "string"
+		},
+		"sku": {
+			"type": "string"
+		},
+		"sqlAdministratorLogin": {
+			"type": "string"
+		},
+		"sqlAdministratorPassword": {
+			"type": "secureString",
+			"defaultValue": ""
+		},
+		"managedVnet": {
+			"type": "string",
+			"defaultValue": "default",
+			"allowedValues": [
+				"default"
+			]
+		}
+	},
+	"variables": {
+		"workspaceName": "[concat('wade-', parameters('client'), '-', 'analytics-synw-', parameters('environment') )]",
+		"sqlpoolnameShort": "[concat('wade', parameters('client'),'syndp', parameters('environment'))]",
+		"sqlpoolname": "[concat(variables('workspaceName'), '/', variables('sqlpoolnameShort'))]",
+		"storageAccount": "[concat('wade', parameters('client'), 'dlst', parameters('environment'))]",
+		"storageAccountUrl": "[concat('https://', variables('storageAccount'), '.dfs.core.windows.net')]",
+		"storageAccountExternalId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Storage/storageAccounts/', variables('storageAccount'))]",
+		"managedResourceGroupName": "[concat('wade', '-', parameters('client'), '-', 'synw-managed', '-', parameters('environment') )]",
+		"filesystemName": "[concat('wade', parameters('client'), 'dls', parameters('environment'))]",
+		"webEndPointUrl": "[concat('https://web.azuresynapse.net?workspace=%2fsubscriptions%2f', subscription().subscriptionId, '%2fresourceGroups%2f', resourceGroup().name, '%2fproviders%2fMicrosoft.Synapse%2fworkspaces%2f')]"
+	},
+	"resources": [
+		{
+			"type": "Microsoft.Synapse/workspaces",
+			"apiVersion": "2021-06-01",
+			"name": "[variables('workspaceName')]",
+			"location": "[parameters('location')]",
+			"identity": {
+				"type": "SystemAssigned"
+			},
+			"properties": {
+				"defaultDataLakeStorage": {
+					"resourceId": "[variables('storageAccountExternalId')]",
+					"createManagedPrivateEndpoint": false,
+					"accountUrl": "[variables('storageAccountUrl')]",
+					"filesystem": "[variables('filesystemName')]"
+				},
+				"connectivityEndpoints": {
+					"web": "[concat(variables('webEndPointUrl'), variables('workspaceName'))]",
+					"dev": "[concat('https://', variables('workspaceName'), '.dev.azuresynapse.net')]",
+					"sqlOnDemand": "[concat(variables('workspaceName'), '-ondemand.sql.azuresynapse.net')]",
+					"sql": "[concat(variables('workspaceName'), '.sql.azuresynapse.net')]"
+				},
+				"managedResourceGroupName": "[variables('managedResourceGroupName')]",
+				"sqlAdministratorLogin": "[parameters('sqlAdministratorLogin')]",
+				"sqlAdministratorLoginPassword": "[parameters('sqlAdministratorPassword')]",
+				"publicNetworkAccess": "Enabled",
+				"managedVirtualNetwork": "[parameters('managedVnet')]",
+				"cspWorkspaceAdminProperties": {
+					"initialWorkspaceAdminObjectId": "[parameters('adminObjectId')]"
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Synapse/workspaces/sqlPools",
+			"apiVersion": "2021-06-01",
+			"name": "[variables('sqlpoolname')]",
+			"location": "[parameters('location')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Synapse/workspaces', variables('workspaceName'))]"
+			],
+			"sku": {
+				"name": "[parameters('sku')]",
+				"capacity": 0
+			},
+			"properties": {
+				"maxSizeBytes": 263882790666240,
+				"collation": "Finnish_Swedish_CI_AS",
+				"restorePointInTime": "1900-01-01T00:00:00Z",
+				"creationDate": "2021-11-02T09:44:15.437Z",
+				"storageAccountType": "GRS",
+				"sourceDatabaseDeletionDate": "1900-01-01T00:00:00Z",
+				"provisioningState": "Offline"
+			}
+		},
+		{
+			"type": "Microsoft.Synapse/workspaces/firewallRules",
+			"apiVersion": "2021-06-01",
+			"name": "[concat(variables('workspaceName'), '/AllowAllWindowsAzureIps')]",
+			"properties": {
+				"startIpAddress": "0.0.0.0",
+				"endIpAddress": "0.0.0.0"
+			},
+			"dependsOn": [
+				"[concat('Microsoft.Synapse/workspaces/', variables('workspaceName'), '/sqlPools/', variables('sqlpoolnameShort'))]"
+			]
+		}
+	],
+	"outputs": {
+		"variableSqlpoolname": {
+			"type": "string",
+			"value": "[variables('sqlpoolname')]"
+		}
+	}
+}
