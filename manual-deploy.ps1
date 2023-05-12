@@ -61,6 +61,7 @@ function Deploy-ResourceGroup {
         $client,
         $resource,
         $location,
+        $adminObjectId,
         $templateFile,
         $templateParameterFile
     )
@@ -82,16 +83,32 @@ function Deploy-ResourceGroup {
     $deploymentName = Get-Date -Format "yyyyMMddhhmm"
     # Start the deployment
     try {
-        New-AzResourceGroupDeployment `
-            -client $client `
-            -environment $env `
-            -location $location `
-            -ResourceGroupName $resourceGroupName `
-            -Name $deploymentName `
-            -TemplateFile $templateFile `
-            -TemplateParameterFile $templateParameterFile `
-            -ErrorAction Stop
-
+        $adminObjectId = (Get-AzContext).Account.ExtendedProperties.HomeAccountId.Split('.')[0]
+        if ($resource -eq 'synw')
+            {
+                New-AzResourceGroupDeployment `
+                -client $client `
+                -environment $env `
+                -location $location `
+                -ResourceGroupName $resourceGroupName `
+                -Name $deploymentName `
+                -TemplateFile $templateFile `
+                -TemplateParameterFile $templateParameterFile `
+                -adminObjectId $adminObjectId `
+                -ErrorAction Stop
+            }
+        else
+            {
+                New-AzResourceGroupDeployment `
+                -client $client `
+                -environment $env `
+                -location $location `
+                -ResourceGroupName $resourceGroupName `
+                -Name $deploymentName `
+                -TemplateFile $templateFile `
+                -TemplateParameterFile $templateParameterFile `
+                -ErrorAction Stop
+            }
 
         Write-Host "$resourceGroupName Resource Group was successfully deployed."        
     }
@@ -109,21 +126,20 @@ function Deploy-All {
         $client,
         $location
     )
-    Write-Host("Deploying all resources for $client in $env")
-    $resourceGroupName = Get-ResourceGroupName -env $env -client $client -resource 'dbw'
-    Write-Host $resourceGroupName
+    Write-Host("Deploying WADE in $subscriptionId for $client, $env environment")
+    
 
     # Deploy Databricks
-    Deploy-ResourceGroup -env $env -client $client -resource 'dbw' -location $location -templateFile 'arm/databricks_template.json' -templateParameterFile "params/databricks_parameters.json"
+    # Deploy-ResourceGroup -env $env -client $client -resource 'dbw' -location $location -templateFile 'arm/databricks_template.json' -templateParameterFile "params/databricks_parameters.json"
 
     # Deploy Lake
-    Deploy-ResourceGroup -env $env -client $client -resource 'storage' -location $location -templateFile 'arm/datalake_template.json' -templateParameterFile "params/datalake_parameters.json"
+    # Deploy-ResourceGroup -env $env -client $client -resource 'storage' -location $location -templateFile 'arm/datalake_template.json' -templateParameterFile "params/datalake_parameters.json"
 
     # Deploy Function
-    Deploy-ResourceGroup -env $env -client $client -resource 'functions' -location $location -templateFile 'arm/functions_template.json' -templateParameterFile "params/functions_parameters.json"
+    # Deploy-ResourceGroup -env $env -client $client -resource 'functions' -location $location -templateFile 'arm/functions_template.json' -templateParameterFile "params/functions_parameters.json"
 
     # Deploy KeyVault
-    Deploy-ResourceGroup -env $env -client $client -resource 'common' -location $location -templateFile 'arm/keyvault_template.json' -templateParameterFile "params/keyvault_parameters.json"
+    # Deploy-ResourceGroup -env $env -client $client -resource 'common' -location $location -templateFile 'arm/keyvault_template.json' -templateParameterFile "params/keyvault_parameters.json"
 
     # Deploy Synapse
     Deploy-ResourceGroup -env $env -client $client -resource 'synw' -location $location -templateFile 'arm/synapse_template.json' -templateParameterFile "params/synapse_parameters.json"    

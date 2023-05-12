@@ -5,12 +5,6 @@
         "sku": {
             "value": "DW100c"
         },
-        "sqlAdministratorLogin": {
-            "value": "sqladminuser"
-        },
-        "sqlAdministratorPassword": {
-            "value": "123qweASD@"
-        },
         "managedVnet": {
             "value": "default"
         }

@@ -17,13 +17,6 @@
 		"sku": {
 			"type": "string"
 		},
-		"sqlAdministratorLogin": {
-			"type": "string"
-		},
-		"sqlAdministratorPassword": {
-			"type": "secureString",
-			"defaultValue": ""
-		},
 		"managedVnet": {
 			"type": "string",
 			"defaultValue": "default",
@@ -66,8 +59,6 @@
 					"sql": "[concat(variables('workspaceName'), '.sql.azuresynapse.net')]"
 				},
 				"managedResourceGroupName": "[variables('managedResourceGroupName')]",
-				"sqlAdministratorLogin": "[parameters('sqlAdministratorLogin')]",
-				"sqlAdministratorLoginPassword": "[parameters('sqlAdministratorPassword')]",
 				"publicNetworkAccess": "Enabled",
 				"managedVirtualNetwork": "[parameters('managedVnet')]",
 				"cspWorkspaceAdminProperties": {
