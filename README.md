@@ -25,7 +25,7 @@ To use the `manual-deploy.ps1` script, follow these steps:
 2. Navigate to the directory where you cloned the `azure-env-creator` repository.
 3. Run the `manual-deploy.ps1` script and fill in the following parameters:
 
-   - `Environment Type`: The ID of your Azure subscription.
+   - `Environment Type`: environemnt type (e.g. dev, test, prod)
    - `Wade Identity`: is provided to you when you register yourslef at WADE, should be saved in Key Vault as azure-identity.
    - `Azure Subscription ID`: The ID of your Azure Subscripiton.
    - `Azure Region`: Azure Region you want to deploy into.
