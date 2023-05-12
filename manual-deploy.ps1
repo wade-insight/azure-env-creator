@@ -130,16 +130,16 @@ function Deploy-All {
     
 
     # Deploy Databricks
-    # Deploy-ResourceGroup -env $env -client $client -resource 'dbw' -location $location -templateFile 'arm/databricks_template.json' -templateParameterFile "params/databricks_parameters.json"
+    Deploy-ResourceGroup -env $env -client $client -resource 'dbw' -location $location -templateFile 'arm/databricks_template.json' -templateParameterFile "params/databricks_parameters.json"
 
     # Deploy Lake
-    # Deploy-ResourceGroup -env $env -client $client -resource 'storage' -location $location -templateFile 'arm/datalake_template.json' -templateParameterFile "params/datalake_parameters.json"
+    Deploy-ResourceGroup -env $env -client $client -resource 'storage' -location $location -templateFile 'arm/datalake_template.json' -templateParameterFile "params/datalake_parameters.json"
 
     # Deploy Function
-    # Deploy-ResourceGroup -env $env -client $client -resource 'functions' -location $location -templateFile 'arm/functions_template.json' -templateParameterFile "params/functions_parameters.json"
+    Deploy-ResourceGroup -env $env -client $client -resource 'functions' -location $location -templateFile 'arm/functions_template.json' -templateParameterFile "params/functions_parameters.json"
 
     # Deploy KeyVault
-    # Deploy-ResourceGroup -env $env -client $client -resource 'common' -location $location -templateFile 'arm/keyvault_template.json' -templateParameterFile "params/keyvault_parameters.json"
+    Deploy-ResourceGroup -env $env -client $client -resource 'common' -location $location -templateFile 'arm/keyvault_template.json' -templateParameterFile "params/keyvault_parameters.json"
 
     # Deploy Synapse
     Deploy-ResourceGroup -env $env -client $client -resource 'synw' -location $location -templateFile 'arm/synapse_template.json' -templateParameterFile "params/synapse_parameters.json"    
